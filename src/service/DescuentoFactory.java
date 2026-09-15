@@ -1,21 +1,51 @@
 package service;
 
-public class DescuentoFactory {
-    public static IDescuentoStrategy obtenerEstrategia(String tipoCliente) {
-        if (tipoCliente == null) return new DescuentoSinDescuento();
+import java.util.HashMap;
+import java.util.Map;
 
-        switch (tipoCliente.toUpperCase()) {
-            case "VIP":
-                return new DescuentoVIP();
-            case "NORMAL":
-                return new DescuentoNormal();
-            case "EMPRESA":
-                return new DescuentoEmpresa();
-            case "ESTUDIANTE":
-                return new DescuentoEstudiante();
-            default:
-                return new DescuentoSinDescuento();
-        }
+public class DescuentoFactory {
+
+    private static final Map<String, IDescuentoStrategy> ESTRATEGIAS =
+            new HashMap<>();
+
+    static {
+
+        ESTRATEGIAS.put(
+                "VIP",
+                new DescuentoVIP()
+        );
+
+        ESTRATEGIAS.put(
+                "NORMAL",
+                new DescuentoNormal()
+        );
+
+        ESTRATEGIAS.put(
+                "EMPRESA",
+                new DescuentoEmpresa()
+        );
+
+        ESTRATEGIAS.put(
+                "ESTUDIANTE",
+                new DescuentoEstudiante()
+        );
+
+        ESTRATEGIAS.put(
+                "JUBILADO",
+                new DescuentoJubilado()
+        );
     }
 
+    public static IDescuentoStrategy obtenerEstrategia(
+            String tipoCliente) {
+
+        if (tipoCliente == null) {
+            return ESTRATEGIAS.get("NORMAL");
+        }
+
+        return ESTRATEGIAS.getOrDefault(
+                tipoCliente.trim().toUpperCase(),
+                new DescuentoNormal()
+        );
+    }
 }

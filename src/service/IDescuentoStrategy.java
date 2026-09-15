@@ -1,5 +1,6 @@
 package service;
 
 public interface IDescuentoStrategy {
-    double aplicar(double monto);
+
+    double aplicarDescuento(double monto);
 }

@@ -12,13 +12,19 @@ public class VentaService {
     private ClienteService clienteService;
     private ProductoService productoService;
     private VentaRepository ventaRepo;
+    private DescuentoService descuentoService;
 
     private Venta ventaActual;
 
-    public VentaService(ClienteService clienteService, ProductoService productoService, VentaRepository ventaRepo) {
+    public VentaService(
+            ClienteService clienteService,
+            ProductoService productoService,
+            VentaRepository ventaRepo) {
+
         this.clienteService = clienteService;
         this.productoService = productoService;
         this.ventaRepo = ventaRepo;
+        this.descuentoService = new DescuentoService();
     }
 
     public void crearVenta(String dniCliente) {
@@ -31,7 +37,13 @@ public class VentaService {
         }
 
         ventaActual = new Venta(cliente);
-        Console.info("Venta creada para: " + cliente.getNombre());
+
+        Console.info(
+                "Venta creada para: "
+                + cliente.getNombre()
+                + " | Tipo: "
+                + cliente.getTipo()
+        );
     }
 
     // BUG intencional: permite cantidad 0 o negativa por Validaciones
@@ -56,7 +68,13 @@ public class VentaService {
         }
 
         ventaActual.agregarDetalle(producto, cantidad);
-        Console.info("Producto agregado: " + producto.getNombre() + " x" + cantidad);
+
+        Console.info(
+                "Producto agregado: "
+                + producto.getNombre()
+                + " x"
+                + cantidad
+        );
     }
 
     public void finalizarVenta() {
@@ -69,7 +87,26 @@ public class VentaService {
         ventaActual.finalizar();
         ventaRepo.guardar(ventaActual);
 
-        Console.info("Venta finalizada. Total: " + ventaActual.calcularTotal());
+        double subtotal = ventaActual.calcularTotal();
+
+        double totalConDescuento =
+                descuentoService.calcularDescuento(
+                        ventaActual.getCliente().getTipo(),
+                        subtotal
+                );
+
+        Console.info("Cliente: "
+                + ventaActual.getCliente().getNombre());
+
+        Console.info("Tipo de cliente: "
+                + ventaActual.getCliente().getTipo());
+
+        Console.info("Subtotal: S/ "
+                + String.format("%.2f", subtotal));
+
+        Console.info("Total con descuento: S/ "
+                + String.format("%.2f", totalConDescuento));
+
         ventaActual = null;
     }
 
